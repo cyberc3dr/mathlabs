@@ -1,0 +1,9 @@
+[versions]
+kotlin = "2.3.10"
+
+[libraries]
+# Зависимостей нет.
+
+[plugins]
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+shadow = "com.gradleup.shadow:9.3.1"
