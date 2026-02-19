@@ -21,11 +21,14 @@ object Lab1 {
     // Производная f'(x) для метода Ньютона
     fun fp(x: Double) = -1 / sqrt(1 - x.pow(2)) + (0.45 * x.pow(2)) / sqrt(1 - 0.3 * x.pow(3))
 
+    // Производная f''(x) для поиска начального приближения в методе Ньютона
+    fun fpp(x: Double) = -x / (1 - x.pow(2)).pow(1.5) + (0.2025 * x.pow(4)) / (1 - 0.3 * x.pow(3)).pow(1.5) + (0.9 * x) / sqrt(1 - 0.3 * x.pow(3))
+
     // Эквивалентная функция x = fi(x) для метода простых итераций
     fun fi(x: Double) = cos(sqrt(1 - 0.3 * x.pow(3)))
 
     // Производная fi'(x) для проверки условия сходимости метода простых итераций
-    fun fip(x: Double) = -sin(sqrt(1 - 0.3 * x.pow(3))) * (0.45 * x.pow(2)) / sqrt(1 - 0.3 * x.pow(3))
+    fun fip(x: Double) = sin(sqrt(1 - 0.3 * x.pow(3))) * (0.45 * x.pow(2)) / sqrt(1 - 0.3 * x.pow(3))
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -44,7 +47,7 @@ object Lab1 {
         println("Получаем интервал: [${"%.2f".format(a)}, ${"%.2f".format(b)}]")
 
         bisectionMethod(a, b)
-        newtonMethod(b)
+        newtonMethod(a, b)
         simpleIterationMethod(a, b)
         secantMethodRight(a, b)
         secantMethodLeft(a, b)
@@ -80,10 +83,22 @@ object Lab1 {
     }
 
     // Метод Ньютона
-    fun newtonMethod(end: Double) {
+    fun newtonMethod(a: Double, b: Double) {
         println("\nМетод 2: Ньютона")
 
-        var x = end
+        println("Поиск начального приближения для метода Ньютона...")
+
+        // Ищем начальное приближение
+        var x = if(f(a) * fpp(a) < 0) {
+            a
+        } else {
+            b
+        }
+
+        println(fpp(a))
+
+        println("Начальное приближение: x=${"%.2f".format(x)}")
+
         var xnext = x - f(x) / fp(x)
         var iterations = 0
 
@@ -101,24 +116,24 @@ object Lab1 {
     }
 
     // Метод простых итераций
-    fun simpleIterationMethod(start: Double, end: Double) {
+    fun simpleIterationMethod(a: Double, b: Double) {
         println("\nМетод 3: Простых итераций")
 
         println("Проверим условие сходимости")
 
         // Проверка условия сходимости
-        if(abs(fip(start)) < 1 && abs(fip(end)) < 1) {
+        if(abs(fip(a)) < 1 && abs(fip(b)) < 1) {
             println("Условие сходимости выполняется, можно применять метод простых итераций.")
         } else {
             println("Условие сходимости не выполняется.")
             return
         }
 
-        var x = start
+        var x = a
         var xnext = fi(x)
         var iterations = 0
 
-        while(abs(xnext - x) > epsilon) {
+        while(abs(f(xnext)) > epsilon) {
             iterations++
             println("Итерация $iterations: x=${"%.6f".format(x)}, f(x)=${"%.6f".format(f(x))}")
 
@@ -132,11 +147,11 @@ object Lab1 {
     }
 
     // Метод секущих (фиксированный правый конец)
-    fun secantMethodRight(start: Double, end: Double) {
+    fun secantMethodRight(a: Double, b: Double) {
         println("\nМетод 4: Хорд (секущих) - фиксированный правый конец")
 
-        var x = start
-        var xnext = x - f(x) / (f(x) - f(end)) * (x - end)
+        var x = a
+        var xnext = x - f(x) / (f(x) - f(b)) * (x - b)
         var iterations = 0
 
         while(abs(xnext - x) > epsilon) {
@@ -144,7 +159,7 @@ object Lab1 {
             println("Итерация $iterations: x=${"%.6f".format(x)}, f(x)=${"%.6f".format(f(x))}")
 
             x = xnext
-            xnext = x - f(x) / (f(x) - f(end)) * (x - end)
+            xnext = x - f(x) / (f(x) - f(b)) * (x - b)
         }
 
         println("Итерация ${iterations + 1}: x=${"%.6f".format(xnext)}, f(x)=${"%.6f".format(f(xnext))}")
@@ -153,11 +168,11 @@ object Lab1 {
     }
 
     // Метод секущих (фиксированный левый конец)
-    fun secantMethodLeft(start: Double, end: Double) {
+    fun secantMethodLeft(a: Double, b: Double) {
         println("\nМетод 4: Хорд (секущих) - фиксированный левый конец")
 
-        var x = start
-        var xnext = x - f(x) / (f(x) - f(end)) * (x - end)
+        var x = b
+        var xnext = x - f(x) / (f(x) - f(a)) * (x - a)
         var iterations = 0
 
         while(abs(xnext - x) > epsilon) {
@@ -165,7 +180,7 @@ object Lab1 {
             println("Итерация $iterations: x=${"%.6f".format(x)}, f(x)=${"%.6f".format(f(x))}")
 
             x = xnext
-            xnext = x - f(x) / (f(x) - f(end)) * (x - end)
+            xnext = x - f(x) / (f(x) - f(a)) * (x - a)
         }
 
         println("Итерация ${iterations + 1}: x=${"%.6f".format(xnext)}, f(x)=${"%.6f".format(f(xnext))}")
